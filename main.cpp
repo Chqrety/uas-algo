@@ -4,159 +4,101 @@ using namespace std;
 // Husnul Fikri Averus
 // A11.2024.15776
 
-class List {
-private:
-    int data[100];
-    int size;
+const int MAX = 100;
 
-public:
-    List() { size = 0; }
-
-    void inputAwal(int jumlah) {
-        cout << "Masukkan nilai:\n";
-        for (int i = 0; i < jumlah; i++) {
-            cin >> data[i];
-        }
-        size = jumlah;
-    }
-
-    void tampil() {
-        cout << "List: ";
-        for (int i = 0; i < size; i++) {
-            cout << data[i];
-            if (i != size - 1) cout << ", ";
-        }
-        cout << endl;
-    }
-
-    void sortAsc() {
-        int temp[100];
-        for (int i = 0; i < size; i++) temp[i] = data[i];
-        for (int i = 0; i < size - 1; i++)
-            for (int j = 0; j < size - i - 1; j++)
-                if (temp[j] > temp[j + 1])
-                    swap(temp[j], temp[j + 1]);
-        cout << "Ascending: ";
-        for (int i = 0; i < size; i++) {
-            cout << temp[i];
-            if (i != size - 1) cout << ", ";
-        }
-        cout << endl;
-    }
-
-    void sortDesc() {
-        int temp[100];
-        for (int i = 0; i < size; i++) temp[i] = data[i];
-        for (int i = 0; i < size - 1; i++)
-            for (int j = 0; j < size - i - 1; j++)
-                if (temp[j] < temp[j + 1])
-                    swap(temp[j], temp[j + 1]);
-        cout << "Descending: ";
-        for (int i = 0; i < size; i++) {
-            cout << temp[i];
-            if (i != size - 1) cout << ", ";
-        }
-        cout << endl;
-    }
-
-    void filter() {
-        cout << "Filter Nilai: ";
-        for (int i = 0; i < size; i++)
-            if (data[i] % 2 == 0) cout << data[i] << ", ";
-        for (int i = 0; i < size; i++)
-            if (data[i] % 2 != 0)
-                cout << data[i] << (i == size - 1 ? "" : ", ");
-        cout << endl;
-    }
-
-    bool hapus(int nilai) {
-        for (int i = 0; i < size; i++) {
-            if (data[i] == nilai) {
-                for (int j = i; j < size - 1; j++)
-                    data[j] = data[j + 1];
-                size--;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool tambah(int nilai, int posisi) {
-	int index = posisi - 1;
-        if (size >= 100 || index < 0 || index > size) return false;
-        for (int i = size; i > index; i--)
-            data[i] = data[i - 1];
-        data[index] = nilai;
-        size++;
-        return true;
-    }
-
-    int getSize() { return size; }
-
-    void tambahDataDenganValidasi() {
-        char lanjut;
-        cout << "\nIngin menambahkan nilai baru? (y/n): ";
-        cin >> lanjut;
-
-        if (lanjut == 'y' || lanjut == 'Y') {
-            while (size >= 5) {
-                cout << "Jumlah List = " << size << endl;
-                cout << "Hapus nilai? (y/n): ";
-                char hapusInput;
-                cin >> hapusInput;
-                if (hapusInput == 'y' || hapusInput == 'Y') {
-                    int target;
-                    cout << "Input Nilai yang akan dihapus: ";
-                    cin >> target;
-                    if (!hapus(target)) {
-                        cout << "Nilai tidak ditemukan.\n";
-                    } else {
-                        cout << "Nilai berhasil dihapus.\n";
-                    }
-                } else {
-                    cout << "Aksi dibatalkan.\n";
-                    return;
-                }
-            }
-
-            if (size < 5) {
-                int val, pos;
-                cout << "Input Nilai baru: ";
-                cin >> val;
-                cout << "Posisi: ";
-                cin >> pos;
-                if (!tambah(val, pos)) {
-                    cout << "Posisi tidak valid atau array penuh.\n";
-                }
-		cout << endl;
-            }
-        }
-    }
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
 };
 
+Node* newNode(int value) {
+    Node* temp = new Node;
+    temp->data = value;
+    temp->left = temp->right = nullptr;
+    return temp;
+}
+
+Node* insert(Node* root, int value) {
+    if (root == nullptr) return newNode(value);
+    if (value < root->data)
+        root->left = insert(root->left, value);
+    else
+        root->right = insert(root->right, value);
+    return root;
+}
+
+void preOrder(Node* root, int result[], int& idx) {
+    if (root) {
+        result[idx++] = root->data;
+        preOrder(root->left, result, idx);
+        preOrder(root->right, result, idx);
+    }
+}
+
+void inOrder(Node* root, int result[], int& idx) {
+    if (root) {
+        inOrder(root->left, result, idx);
+        result[idx++] = root->data;
+        inOrder(root->right, result, idx);
+    }
+}
+
+void postOrder(Node* root, int result[], int& idx) {
+    if (root) {
+        postOrder(root->left, result, idx);
+        postOrder(root->right, result, idx);
+        result[idx++] = root->data;
+    }
+}
+
+int compare(int a[], int b[], int n) {
+    for (int i = 0; i < n; i++) {
+        if (a[i] != b[i]) return 0;
+    }
+    return 1;
+}
+
+void printArray(const char* label, int arr[], int n) {
+    cout << label << ": ";
+    for (int i = 0; i < n; i++) cout << arr[i] << " ";
+    cout << endl;
+}
+
 int main() {
-    List list;
-    int n;
-    cout << "Masukkan jumlah nilai awal: ";
-    cin >> n;
-    list.inputAwal(n);
+    int A[] = {4, 3, 2};
+    int n = 3;
 
-    char ulang;
-    do {
-        list.tampil();
-        cout << "Jumlah List: " << list.getSize() << endl;
-        list.sortAsc();
-        list.sortDesc();
-        list.filter();
+    int S[MAX], Q[MAX];
+    for (int i = 0; i < n; i++) {
+        S[i] = A[n - 1 - i];
+        Q[i] = A[i];
+    }
 
-        list.tambahDataDenganValidasi();
-	
-	list.tampil();
+    Node* root = nullptr;
+    for (int i = 0; i < n; i++) {
+        root = insert(root, A[i]);
+    }
 
-        cout << "\nUlangi proses? (y/n): ";
-        cin >> ulang;
-    } while (ulang == 'y' || ulang == 'Y');
+    int pre[MAX], in[MAX], post[MAX];
+    int idx;
 
-    cout << "\nProgram selesai.\n";
+    idx = 0; preOrder(root, pre, idx);
+    idx = 0; inOrder(root, in, idx);
+    idx = 0; postOrder(root, post, idx);
+
+    printArray("Stack (S)", S, n);
+    printArray("Queue (Q)", Q, n);
+    printArray("PreOrder", pre, n);
+    printArray("InOrder", in, n);
+    printArray("PostOrder", post, n);
+
+    cout << endl;
+    cout << "|        |  S  |  Q  |" << endl;
+    cout << "|--------|-----|-----|" << endl;
+    cout << "| Pre    |  " << compare(pre, S, n) << "  |  " << compare(pre, Q, n) << "  |" << endl;
+    cout << "| In     |  " << compare(in, S, n) << "  |  " << compare(in, Q, n) << "  |" << endl;
+    cout << "| Post   |  " << compare(post, S, n) << "  |  " << compare(post, Q, n) << "  |" << endl;
+
     return 0;
 }
